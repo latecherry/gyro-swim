@@ -7,14 +7,17 @@ Developed a mobile application based on built-in sensors, which allows users to 
 
 ## 🖼️ UI Prototype
 
-### Begin
-![Begin](UI%20Prototype/Begin.jpg)
+<p align="center">
+  <img src="UI%20Prototype/Begin.jpg" width="40%" />
+  <img src="UI%20Prototype/Illustration.jpg" width="40%" />
+  <br>
+  <b>Begin</b> &nbsp;&nbsp;&nbsp;&nbsp; <b>Illustration</b>
+</p>
 
-### Illustration
-![Illustration](UI%20Prototype/Illustration.jpg)
+<p align="center">
+  <img src="UI%20Prototype/Over.png" width="40%" />
+  <img src="UI%20Prototype/Pause.png" width="40%" />
+  <br>
+  <b>Over</b> &nbsp;&nbsp;&nbsp;&nbsp; <b>Pause</b>
+</p>
 
-### Over
-![Over](UI%20Prototype/Over.png)
-
-### Pause
-![Pause](UI%20Prototype/Pause.png)
