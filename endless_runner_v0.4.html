@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="viewport-fit" content="cover" />
+  <title>Gyro Swim Runner</title>
+  <style>
+    :root{
+      --bg:#021e2f; /* 深海蓝 */
+      --ui:#e9f2f9;
+      --accent:#3fd0ff;
+      --gold:#ffd166;
+    }
+    html,body{
+      margin:0; padding:0; width:100%; height:100%; overflow:hidden;
+      background:linear-gradient(180deg,var(--bg),#012237 60%,#001320);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,'Noto Sans',sans-serif;
+      -webkit-text-size-adjust:100%;
+    }
+    /* ✅ 使用动态可视区单位，自动适配各种手机（含 iPhone 动态岛/工具栏） */
+    #wrap{position:fixed; left:0; top:0; width:100dvw; height:100dvh;}
+    #c{width:100%; height:100%; display:block; touch-action:none;}
+
+    #hud{position:fixed; left:0; right:0; top:0; display:flex; justify-content:space-between; gap:.5rem; padding:.6rem .8rem; color:var(--ui); font-weight:600; text-shadow:0 1px 2px #0009; pointer-events:none; z-index:10}
+    .pill{background:#0006;border:1px solid #fff2;border-radius:12px;padding:.25rem .5rem}
+
+    #panel{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,92vw);background:#001826ee;border:1px solid #ffffff2b;border-radius:16px;color:var(--ui);padding:16px 16px 12px;box-shadow:0 10px 30px #000a;backdrop-filter:blur(6px);z-index:20}
+    #panel h1{margin:.2rem 0 .6rem;font-size:1.35rem;color:var(--accent)}
+    #panel p{line-height:1.35;margin:.35rem 0}
+    #panel .row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+    #panel label{font-size:.9rem;opacity:.9}
+    #panel input[type=range]{width:160px}
+    #panel button{appearance:none;border:0;border-radius:999px;padding:.65rem 1rem;font-weight:700;background:var(--accent);color:#05384c;cursor:pointer;box-shadow:0 8px 20px #00c8ff44}
+    #panel small{opacity:.8}
+
+    #tips{position:fixed;left:50%;transform:translateX(-50%);color:#cfe8ff;opacity:.85;font-size:.9rem;text-shadow:0 1px 2px #0009;z-index:5; bottom:calc(10px + env(safe-area-inset-bottom,0px));}
+    #toast{position:fixed;left:50%;top:14%;transform:translateX(-50%);padding:.4rem .8rem;background:#0008;color:#fff;border:1px solid #ffffff24;border-radius:12px;display:none;z-index:15}
+
+    #pauseOverlay{position:fixed;inset:0;background:#00000080;display:none;place-items:center;color:#fff;z-index:25}
+    #pauseOverlay .box{background:#072235;border:1px solid #ffffff2b;border-radius:16px;padding:16px 20px;text-align:center}
+    #pauseOverlay button{margin-top:10px}
+
+    .floating{position:fixed;right:10px;display:flex;gap:.5rem;z-index:10; bottom:calc(10px + env(safe-area-inset-bottom,0px));}
+    .ghostBtn{appearance:none;border:1px solid #ffffff4d;background:#0005;color:#ddf;border-radius:999px;padding:.55rem .8rem;font-weight:700}
+
+    @supports (padding: env(safe-area-inset-top)){
+      #hud{padding-top:calc(.6rem + env(safe-area-inset-top));}
+    }
+  </style>
+</head>
+<body>
+  <div id="wrap">
+    <canvas id="c" aria-label="Gyro Swim Runner game canvas"></canvas>
+  </div>
+
+  <div id="hud">
+    <div class="pill">分数 <span id="score">0</span></div>
+    <div class="pill">速度 <span id="spd">0.0</span> m/s</div>
+    <div class="pill">剩余生命 <span id="hp">3</span></div>
+  </div>
+
+  <div id="panel" role="dialog" aria-modal="true">
+    <h1>Gyro Swim Runner · 游泳陀螺仪跑酷</h1>
+    <p>按<strong>开始</strong>后，若是 iOS 设备会弹出“允许运动访问”的对话框，请选择允许。左右倾斜控制水平移动；前后倾斜控制上/下浮；长按屏幕冲刺。</p>
+    <div class="row" style="margin:.5rem 0 .25rem">
+      <label>灵敏度</label>
+      <input id="sens" type="range" min="0.2" max="3" step="0.1" value="1.3" />
+      <label>难度</label>
+      <select id="difficulty">
+        <option value="easy">Easy</option>
+        <option value="normal" selected>Normal</option>
+        <option value="hard">Hard</option>
+      </select>
+    </div>
+    <div class="row" style="gap:1rem;margin-top:.6rem">
+      <button id="startBtn">开始游戏</button>
+      <button id="calBtn" class="ghostBtn" style="border-radius:12px">校准水平</button>
+      <small>（将手机保持你觉得的“水平”姿态后点校准）</small>
+    </div>
+    <p style="margin-top:.6rem"><small>调试：桌面可用 ← → ↑ ↓ 控制；<kbd>P</kbd> 暂停；<kbd>R</kbd> 复位。</small></p>
+  </div>
+
+  <div id="pauseOverlay">
+    <div class="box">
+      <div style="font-size:1.2rem;margin-bottom:.4rem">已暂停</div>
+      <button class="ghostBtn" id="resumeBtn">继续</button>
+    </div>
+  </div>
+
+  <div id="tips">提示：若无反应，请在系统设置里开启“运动与体能访问权限”。</div>
+  <div id="toast"></div>
+  <div class="floating">
+    <button id="pauseBtn" class="ghostBtn">暂停</button>
+    <button id="restartBtn" class="ghostBtn">重开</button>
+  </div>
+
+  <script>
+  ;(() => {
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const spdEl = document.getElementById('spd');
+    const hpEl = document.getElementById('hp');
+    const panel = document.getElementById('panel');
+    const pauseOverlay = document.getElementById('pauseOverlay');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resumeBtn = document.getElementById('resumeBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const calBtn = document.getElementById('calBtn');
+    const sensSlider = document.getElementById('sens');
+    const diffSel = document.getElementById('difficulty');
+    const toast = document.getElementById('toast');
+
+    // ✅ 逻辑世界尺寸 = 画布视觉尺寸（不再固定16:9）
+    let W = 0, H = 0, dpr = 1;
+    function fitToViewport(){
+      const vw = window.visualViewport?.width || window.innerWidth;
+      const vh = window.visualViewport?.height || window.innerHeight;
+      document.getElementById('wrap').style.width = vw + 'px';
+      document.getElementById('wrap').style.height = vh + 'px';
+      W = Math.max(320, Math.floor(vw));
+      H = Math.max(320, Math.floor(vh));
+      dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      canvas.width = Math.floor(W * dpr);
+      canvas.height = Math.floor(H * dpr);
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    fitToViewport();
+    window.addEventListener('resize', fitToViewport, {passive:true});
+    window.visualViewport?.addEventListener('resize', fitToViewport, {passive:true});
+
+    // ====== 工具 ======
+    const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
+    const rand = (a,b)=>a + Math.random()*(b-a);
+    function showToast(msg, ms=1400){ toast.textContent = msg; toast.style.display='block'; clearTimeout(showToast.tid); showToast.tid = setTimeout(()=>toast.style.display='none', ms); }
+
+    // ====== 游戏状态 ======
+    const State = {
+      init(){ this.reset(); this.running=false; this.paused=false; this.device={alpha:0,beta:0,gamma:0, calib:{beta:0,gamma:0}, sens: parseFloat(sensSlider.value)}; this.input={ax:0,ay:0,sprint:false}; this.time={now:0,last:0,dt:0}; },
+      reset(){
+        const diff = diffSel.value;
+        const diffCfg = { easy:{baseSpeed:4,maxSpeed:8.5,spawn:1.1,damage:1}, normal:{baseSpeed:5,maxSpeed:10.5,spawn:0.95,damage:1}, hard:{baseSpeed:6,maxSpeed:12.5,spawn:0.85,damage:2} }[diff];
+        // ✅ 自适应：根据屏幕宽度自动计算车道数与边距
+        const laneW = clamp(Math.round(W/9), 90, 140);
+        const padding = clamp(Math.round(W*0.06), 32, 80);
+        const lanes = clamp(Math.floor((W - 2*padding)/laneW), 5, 11);
+        this.cfg = Object.assign({ laneWidth: laneW, lanes, worldPadding: padding, swimAccel: 18, swimDamp:0.90, gravity:0, sprintBoost:1.8, bubbleRate:60, coinRate:2.2, obstacleRate: diffCfg.spawn, hurtCooldown:0.9, healEvery:1000 }, diffCfg);
+        this.world = { z:0, speed:this.cfg.baseSpeed, t:0 };
+        this.hero = { x:W/2, y:H/2, vx:0, vy:0, r:Math.max(14, Math.min(20, Math.round(Math.min(W,H)/30))), hp:3, invul:0, score:0 };
+        this.obs=[]; this.coins=[]; this.bubbles=[]; this.spawnTick=0; this.coinTick=0; this.bubbleTick=0; this.surviveTime=0; this.lastHealAt=0;
+      }
+    };
+    State.init();
+
+    // ====== 陀螺仪输入 ======
+    async function requestMotionPermission(){
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      try{
+        if (isIOS && typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function'){
+          const r1 = await DeviceMotionEvent.requestPermission();
+          const r2 = await DeviceOrientationEvent.requestPermission?.();
+          if (r1 !== 'granted') throw new Error('未授权运动传感器');
+          if (r2 && r2 !== 'granted') throw new Error('未授权方向传感器');
+        }
+      }catch(e){ showToast(e.message || '需要传感器权限'); }
+    }
+
+    function handleOrientation(e){
+      const {beta, gamma} = e; // beta前后，gamma左右
+      const b0=State.device.calib.beta, g0=State.device.calib.gamma, sens=State.device.sens;
+      // 手机前倾（beta增大） => 上浮；后仰 => 下潜
+      const ax = clamp((gamma - g0) / 25, -1, 1) * sens; // 左右
+      const ay = clamp(((beta - b0)) / 25, -1, 1) * sens; // 上下（前倾上浮）
+      State.input.ax = clamp(ax, -1.5, 1.5);
+      State.input.ay = clamp(ay, -1.5, 1.5);
+    }
+
+    function calibrate(){ State.device.calib.beta = State.device.beta; State.device.calib.gamma = State.device.gamma; showToast('已校准'); }
+
+    window.addEventListener('deviceorientation', (e)=>{ State.device.alpha=e.alpha||0; State.device.beta=e.beta||0; State.device.gamma=e.gamma||0; handleOrientation(State.device); });
+
+    // 触摸冲刺
+    let touchId = null; canvas.addEventListener('touchstart',(e)=>{ if (touchId===null){ touchId=e.changedTouches[0].identifier; State.input.sprint=true; } }, {passive:true});
+    canvas.addEventListener('touchend',(e)=>{ for (const t of e.changedTouches){ if (t.identifier===touchId){ touchId=null; State.input.sprint=false; } } }, {passive:true});
+
+    // 桌面键盘调试（与手机方向保持一致：↑ 上浮 / ↓ 下潜）
+    const keys = new Set();
+    window.addEventListener('keydown', (e)=>{ keys.add(e.key); if (e.key==='p'||e.key==='P'){ togglePause(); } if (e.key==='r'||e.key==='R'){ restart(); } });
+    window.addEventListener('keyup', (e)=>{ keys.delete(e.key); });
+    function keyboardInput(){
+      const ax = (keys.has('ArrowRight')?1:0) - (keys.has('ArrowLeft')?1:0);
+      const ay = (keys.has('ArrowDown')?1:0) - (keys.has('ArrowUp')?1:0); // ↑为-1(上浮), ↓为+1(下潜)
+      State.input.ax = ax * State.device.sens;
+      State.input.ay = ay * State.device.sens;
+      State.input.sprint = keys.has(' ');
+    }
+
+    // ====== 生成元素（基于自适应宽度） ======
+    function laneX(l){ return State.cfg.worldPadding + l*State.cfg.laneWidth; }
+
+    function spawnObstacle(){
+      const laneW = State.cfg.laneWidth, lanes=State.cfg.lanes;
+      const w = rand(laneW*0.7, laneW*1.2);
+      const h = rand(Math.max(24,H*0.04), Math.max(40,H*0.08));
+      const lane = Math.floor(rand(0, lanes));
+      const x = laneX(lane) + (laneW - w)/2;
+      const y = rand(Math.max(50,H*0.12), H - Math.max(50,H*0.12));
+      const z = State.world.z + rand(H*1.1, H*2.0);
+      const type = Math.random()<0.4 ? 'mine' : 'rock';
+      State.obs.push({x,y,z,w,h,type,hit:false});
+    }
+
+    function spawnCoin(){
+      const laneW = State.cfg.laneWidth, lanes=State.cfg.lanes;
+      const lane = Math.floor(rand(0, lanes));
+      const x = laneX(lane) + laneW/2;
+      const y = rand(Math.max(70,H*0.14), H - Math.max(70,H*0.14));
+      const z = State.world.z + rand(H*0.9, H*1.8);
+      State.coins.push({x,y,z,r:Math.max(9, Math.min(14, Math.round(Math.min(W,H)/50))),got:false});
+    }
+
+    function spawnBubble(){
+      const x = rand(20, W-20); const y = rand(H-30, H-10);
+      State.bubbles.push({x,y,r:rand(2,5),vz:rand(-120,-60),life:rand(0.8,1.8)});
+    }
+
+    // ====== 碰撞 ======
+    function aabbCircleOverlap(ax,ay,aw,ah,cx,cy,cr){ const nx = clamp(cx, ax, ax+aw); const ny = clamp(cy, ay, ay+ah); const dx = cx - nx, dy = cy - ny; return (dx*dx + dy*dy) <= cr*cr; }
+
+    // ====== 绘制 ======
+    function drawWaterBackground(t){
+      const g = ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#03233b'); g.addColorStop(1,'#011625'); ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+      ctx.globalAlpha = 0.08; const waves = Math.ceil(H/90)+2; for(let i=0;i<waves;i++){ const y=(t*30 + i*90) % (H+90) - 90; ctx.fillStyle='#3fd0ff'; ctx.beginPath(); ctx.ellipse(W*0.5, y, W*0.55, 40, 0, 0, Math.PI*2); ctx.fill(); } ctx.globalAlpha=1;
+    }
+
+    function drawHero(h, t){
+      const sway = Math.sin(t*8 + h.y*0.02) * 6; const x=h.x, y=h.y;
+      ctx.globalAlpha = 0.8; ctx.fillStyle = '#7fdcff'; for(let i=0;i<4;i++){ const bx = x - 22 - i*10 + Math.sin(t*10+i)*2; const by = y + Math.cos(t*8+i)*2; ctx.beginPath(); ctx.arc(bx, by, 2+i*0.8, 0, Math.PI*2); ctx.fill(); } ctx.globalAlpha = 1;
+      ctx.fillStyle = '#73c6ff'; ctx.beginPath(); ctx.ellipse(x, y, 26, 12, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#ffd4a3'; ctx.beginPath(); ctx.arc(x+24, y-2, 7, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#144d66'; ctx.fillRect(x+18, y-6, 12, 8); ctx.fillStyle = '#8be0ff'; ctx.fillRect(x+19, y-5, 10, 6);
+      ctx.strokeStyle = '#73c6ff'; ctx.lineWidth = 4; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x-18, y + sway*0.6); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x+6, y+2); ctx.lineTo(x-8, y - sway*0.6); ctx.stroke();
+      if (h.invul>0){ ctx.globalAlpha = 0.5 + 0.5*Math.sin(t*30); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.ellipse(x, y, 29, 15, 0, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha=1; }
+    }
+
+    function drawObstacle(o, zRel){
+      ctx.save(); const par = clamp(1 - zRel/(H*2.0), 0, 1); const rx = (o.x - State.cfg.worldPadding) * par + State.cfg.worldPadding; const ry = (o.y - H/2) * par + H/2; const w = o.w * par, h = o.h * par;
+      if (o.type==='mine'){ ctx.fillStyle = '#8a1f1f'; ctx.beginPath(); ctx.roundRect(rx-w/2, ry-h/2, w, h, 6); ctx.fill(); ctx.fillStyle = '#ff8080'; ctx.fillRect(rx-w/2+4, ry-h/2+4, w-8, 6); }
+      else{ ctx.fillStyle = '#274e5f'; ctx.beginPath(); ctx.roundRect(rx-w/2, ry-h/2, w, h, 10); ctx.fill(); }
+      ctx.restore();
+    }
+
+    function drawCoin(c, zRel){ ctx.save(); const par = clamp(1 - zRel/(H*2.0), 0, 1); const rx = (c.x - State.cfg.worldPadding) * par + State.cfg.worldPadding; const ry = (c.y - H/2) * par + H/2; const r = c.r * (par*0.8+0.2); ctx.fillStyle = '#ffd166'; ctx.beginPath(); ctx.arc(rx, ry, r, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#fff8'; ctx.fillRect(rx-r*0.2, ry-r*0.8, r*0.4, r*1.6); ctx.restore(); }
+
+    function drawLaneGuides(){ ctx.strokeStyle = '#ffffff10'; ctx.lineWidth = 1; const x0 = State.cfg.worldPadding; const laneW = State.cfg.laneWidth; for(let i=0;i<=State.cfg.lanes;i++){ const x = x0 + i*laneW; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); } }
+
+    // ====== 更新 ======
+    function update(dt){
+      if (!('ontouchstart' in window)) keyboardInput();
+      const h = State.hero; const w = State.world; const cfg = State.cfg; State.time.now += dt; w.t += dt; State.surviveTime += dt;
+      const targetSpd = cfg.baseSpeed + Math.min(1, State.surviveTime/120) * (cfg.maxSpeed - cfg.baseSpeed); w.speed += (targetSpd - w.speed) * 0.2;
+      const spdMul = State.input.sprint ? cfg.sprintBoost : 1; w.z += w.speed * spdMul * dt * 60;
+      h.vx += State.input.ax * cfg.swimAccel; h.vy += State.input.ay * cfg.swimAccel; h.vx *= cfg.swimDamp; h.vy *= cfg.swimDamp;
+      h.x = clamp(h.x + h.vx * dt, cfg.worldPadding + h.r, W - cfg.worldPadding - h.r);
+      h.y = clamp(h.y + h.vy * dt, h.r, H - h.r);
+
+      if ((State.bubbleTick += dt) > 1/cfg.bubbleRate){ State.bubbleTick = 0; spawnBubble(); }
+      if ((State.spawnTick += dt) > cfg.obstacleRate){ State.spawnTick = 0; spawnObstacle(); }
+      if ((State.coinTick += dt) > cfg.coinRate){ State.coinTick = 0; spawnCoin(); }
+
+      for (let i=State.bubbles.length-1;i>=0;i--){ const b=State.bubbles[i]; b.life -= dt; b.y += -40*dt; if (b.life<=0) State.bubbles.splice(i,1); }
+
+      for (let i=State.obs.length-1;i>=0;i--){ const o=State.obs[i]; const zRel = o.z - w.z; if (zRel < -40){ State.obs.splice(i,1); continue; } if (!o.hit && Math.abs(zRel) < 40){ if (aabbCircleOverlap(o.x - o.w/2, o.y - o.h/2, o.w, o.h, h.x, h.y, h.r)){ o.hit=true; onHit(); } } }
+      for (let i=State.coins.length-1;i>=0;i--){ const c=State.coins[i]; const zRel = c.z - w.z; if (zRel < -20){ State.coins.splice(i,1); continue; } if (!c.got && Math.abs(zRel) < 40){ const dx=c.x-h.x, dy=c.y-h.y; if (dx*dx+dy*dy < (h.r+12)*(h.r+12)){ c.got=true; State.hero.score += 10; showToast('+10'); } } }
+
+      if (Math.floor(h.score / cfg.healEvery) > Math.floor(State.lastHealAt / cfg.healEvery)){ if (h.hp < 5){ h.hp++; showToast('生命+1'); } State.lastHealAt = h.score; }
+      h.invul = Math.max(0, h.invul - dt);
+      scoreEl.textContent = Math.floor(h.score); spdEl.textContent = w.speed.toFixed(1); hpEl.textContent = h.hp; h.score += dt * w.speed * (State.input.sprint?1.0:0.7);
+    }
+
+    function onHit(){ const h=State.hero; if (h.invul>0) return; h.hp -= State.cfg.damage; h.invul = State.cfg.hurtCooldown; showToast(h.hp>0 ? '碰撞！-HP' : '你被击倒了'); if (h.hp <= 0){ gameOver(); } }
+    function gameOver(){ State.running=false; State.paused=false; panel.style.display='block'; document.querySelector('#panel h1').textContent='Game Over · 再来一把？'; startBtn.textContent='重新开始'; }
+
+    // ====== 主循环 ======
+    let rafId=0; function loop(){ rafId = requestAnimationFrame(loop); if (!State.running || State.paused) return; const now=performance.now(); if (!State.time.last) State.time.last=now; const dt = clamp((now - State.time.last)/1000, 0, 0.05); State.time.last=now; update(dt); drawWaterBackground(State.world.t); drawLaneGuides(); for (const b of State.bubbles){ ctx.globalAlpha=0.35; ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2); ctx.fillStyle='#7fdcff'; ctx.fill(); ctx.globalAlpha=1; } for (const c of State.coins){ drawCoin(c, c.z - State.world.z); } for (const o of State.obs){ drawObstacle(o, o.z - State.world.z); } drawHero(State.hero, State.world.t); }
+
+    // ====== 控制 ======
+    function start(){ State.reset(); State.running=true; State.paused=false; State.time.last=0; panel.style.display='none'; showToast('左右倾斜移动，长按冲刺'); }
+    function restart(){ panel.style.display='none'; State.reset(); State.running=true; State.paused=false; State.time.last=0; }
+    function togglePause(){ if (!State.running) return; State.paused=!State.paused; pauseOverlay.style.display = State.paused?'grid':'none'; }
+
+    startBtn.addEventListener('click', async ()=>{ await requestMotionPermission(); start(); }, {passive:true});
+    pauseBtn.addEventListener('click', ()=> togglePause());
+    resumeBtn.addEventListener('click', ()=> togglePause());
+    restartBtn.addEventListener('click', ()=> restart());
+    calBtn.addEventListener('click', ()=> calibrate());
+    sensSlider.addEventListener('input', ()=>{ State.device.sens = parseFloat(sensSlider.value); });
+    diffSel.addEventListener('change', ()=> showToast('难度：'+diffSel.value));
+
+    // 自动开始主循环
+    loop();
+  })();
+  </script>
+</body>
+</html>
