@@ -1,7 +1,7 @@
 # gyro-swim
-### 📘 BIT’s School of Automation — Compulsory Course: *Software Engineering*
+## 📘 BIT’s School of Automation — Compulsory Course: *Software Engineering*
 <p align="center">
-  <img src="https://raw.githubusercontent.com/latecherry/gyro-swim/main/assets/logo.png" alt="Gyro Swim Logo" width="180"/>
+  <img src="https://raw.githubusercontent.com/latecherry/gyro-swim/main/assets/logo.png" alt="Gyro Swim Logo" width="240"/>
 </p>
 
 **Project:** *Swimming Simulation Mobile Game*  
