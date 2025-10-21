@@ -4,7 +4,7 @@
   <img src="https://raw.githubusercontent.com/latecherry/gyro-swim/main/assets/logo.png" alt="Gyro Swim Logo" width="240"/>
 </p>
 
-**Project:** *Swimming Simulation Mobile Game*  
+**Project:** *Swimming Simulation Game*  
 **Description:**  
 Developed a mobile application based on built-in sensors, which allows users to control the posture and movements of their phones to simulate swimming-related motion in the game.
 
