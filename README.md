@@ -15,7 +15,9 @@ Developed a mobile application based on built-in sensors, which allows users to 
 <!-- 🎮 START button -->
 <p align="center">
   <a href="https://latecherry.github.io/gyro-swim/" target="_blank">
-    <img src="https://img.shields.io/badge/🎮 START-PLAY_NOW-brightgreen?style=for-the-badge" alt="Start Game">
+    <img src="https://img.shields.io/badge/🎮 START-PLAY_NOW-brightgreen?style=for-the-badge" 
+         alt="Start Game" 
+         width="180"/>
   </a>
 </p>
 
