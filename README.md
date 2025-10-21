@@ -1,4 +1,5 @@
-# gyro-swim
+<h1 align="center">🌀 Gyro Swim</h1>
+
 ## 📘 BIT’s School of Automation — Compulsory Course: *Software Engineering*
 <p align="center">
   <img src="https://raw.githubusercontent.com/latecherry/gyro-swim/main/assets/logo.png" alt="Gyro Swim Logo" width="240"/>
