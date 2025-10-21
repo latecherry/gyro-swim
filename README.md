@@ -1,6 +1,8 @@
 # gyro-swim
 ### 📘 BIT’s School of Automation — Compulsory Course: *Software Engineering*
-
+<p align="center">
+  <img src="https://raw.githubusercontent.com/latecherry/gyro-swim/main/asset/logo.png" alt="Gyro Swim Logo" width="200"/>
+</p>
 **Project:** *Swimming Simulation Mobile Game*  
 **Description:**  
 Developed a mobile application based on built-in sensors, which allows users to control the posture and movements of their phones to simulate swimming-related motion in the game.
