@@ -21,6 +21,15 @@ Developed a mobile application based on built-in sensors, which allows users to 
   </a>
 </p>
 
+<h2>🚀 Development Plan</h2>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/latecherry/gyro-swim/main/Projects/Project%20Progress%20Gantt%20Chart.png"
+       alt="Project Progress Gantt Chart"
+       title="Project Progress Gantt Chart"
+       width="100%">
+</p>
+
 <h2>🖼️ UI Prototype</h2>
 
 <p align="center">
