@@ -30,6 +30,15 @@ Developed a mobile application based on built-in sensors, which allows users to 
        width="100%">
 </p>
 
+<h2>🔄 State Transition Diagram</h2>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/latecherry/gyro-swim/main/Projects/State%20Transition%20Diagram.png"
+       alt="State Transition Diagram"
+       title="State Transition Diagram"
+       width="100%">
+</p>
+
 <h2>🖼️ UI Prototype</h2>
 
 <p align="center">
