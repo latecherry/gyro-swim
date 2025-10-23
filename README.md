@@ -21,7 +21,7 @@ Developed a mobile application based on built-in sensors, which allows users to 
   </a>
 </p>
 
-<h2>🚀 Development Plan</h2>
+<h2>📅 Development Plan</h2>
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/latecherry/gyro-swim/main/Projects/Project%20Progress%20Gantt%20Chart.png"
