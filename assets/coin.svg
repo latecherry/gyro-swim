@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!-- 外圈描边/厚边 -->
+  <circle cx="32" cy="32" r="30" fill="#C58A00" stroke="#4A2E00" stroke-width="2"></circle>
+
+  <!-- 内圈金币主体，做一点径向高光 -->
+  <radialGradient id="goldGrad" cx="30%" cy="30%" r="80%">
+    <stop offset="0%" stop-color="#FFE27A"></stop>
+    <stop offset="50%" stop-color="#FFC722"></stop>
+    <stop offset="100%" stop-color="#E19A00"></stop>
+  </radialGradient>
+  <circle cx="32" cy="32" r="24" fill="url(#goldGrad)" stroke="#7A4A00" stroke-width="2"></circle>
+
+  <!-- 内圈再加一层淡淡的环，提高质感 -->
+  <circle cx="32" cy="32" r="20" fill="none" stroke="#FFF3B0" stroke-width="2" opacity="0.5"></circle>
+
+  <!-- 中心符号：一个简单的“闪电币”造型 -->
+  <path d="M34 20 L26 34 H31 L28 44 L38 30 H33 Z" fill="#FFF3B0" stroke="#7A4A00" stroke-width="1.5" stroke-linejoin="round"></path>
+
+  <!-- 侧面高光（左上弧），让它更像硬币边缘反光 -->
+  <path d="M10 28
+           A22 22 0 0 1 28 10" fill="none" stroke="#FFF8D6" stroke-width="3" stroke-linecap="round" opacity="0.6"></path>
+
+  <!-- 侧面阴影（右下弧），增加厚重感 -->
+  <path d="M36 54
+           A22 22 0 0 0 54 36" fill="none" stroke="#4A2E00" stroke-width="4" stroke-linecap="round" opacity="0.4"></path>
+
+</svg>

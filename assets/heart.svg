@@ -1,0 +1,8 @@
+<svg width="128" height="128" viewBox="0 0 100 90" xmlns="http://www.w3.org/2000/svg" aria-label="heart">
+  <!-- 背景默认为透明，无需额外设置 -->
+  <path d="M50 15
+       C 42 -3, 10 0, 10 23
+       C 10 40, 28 52, 50 70
+       C 72 52, 90 40, 90 23
+       C 90 0, 58 -3, 50 15 Z" fill="#e63946"></path>
+</svg>
