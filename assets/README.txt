@@ -1,1 +1,0 @@
-Place audio/images/fonts here. This project currently renders with Canvas only.
