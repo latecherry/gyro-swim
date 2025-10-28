@@ -2,10 +2,10 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="viewport-fit" content="cover" />
   <title>Gyro Swim Runner</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <div id="wrap">
@@ -19,32 +19,108 @@
   </div>
 
   <div id="panel" role="dialog" aria-modal="true">
-    <h1 id="panelTitle">Gyro Swim Runner · 游泳陀螺仪跑酷</h1>
+    <h1 id="panelTitle"><span>Gyro Swim Runner · 游泳陀螺仪跑酷</span></h1>
     <p id="panelDesc">
-      按<strong>开始</strong>后，若是 iOS 设备会弹出“允许运动访问”的对话框，请选择允许。左右倾斜控制水平移动；
-      前后倾斜控制上/下浮；长按屏幕冲刺。
+      按<strong>开始</strong>后，若是 iOS 设备会弹出“允许运动访问”的对话框，请选择允许。<br>
+      左右倾斜控制水平移动；前后倾斜控制上/下浮。
     </p>
 
-    <div class="row" style="margin:.5rem 0 .25rem">
-      <label>灵敏度</label>
-      <input id="sens" type="range" min="0.2" max="3" step="0.1" value="1.3" />
-      <label>难度</label>
-      <select id="difficulty">
-        <option value="easy">Easy</option>
-        <option value="normal" selected>Normal</option>
-        <option value="hard">Hard</option>
-      </select>
-    </div>
+    <section class="controlSection">
+      <div class="blockCard">
+        <div class="rowTitle">难度</div>
+        <div class="diffGroup" id="diffGroup">
+          <label class="diffOption">
+            <input type="radio" name="difficulty" id="diff_easy" value="easy">
+            <div class="diffBtn">
+              <span class="diffMainTxt">Easy</span>
+              <span class="diffSubTxt">更少障碍</span>
+            </div>
+          </label>
+          <label class="diffOption">
+            <input type="radio" name="difficulty" id="diff_normal" value="normal" checked>
+            <div class="diffBtn">
+              <span class="diffMainTxt">Normal</span>
+              <span class="diffSubTxt">标准速度</span>
+            </div>
+          </label>
+          <label class="diffOption">
+            <input type="radio" name="difficulty" id="diff_hard" value="hard">
+            <div class="diffBtn">
+              <span class="diffMainTxt">Hard</span>
+              <span class="diffSubTxt">高压挑战</span>
+            </div>
+          </label>
+        </div>
+      </div>
 
-    <div class="row" style="gap:1rem;margin-top:.6rem">
-      <button id="startBtn">开始游戏</button>
-      <button id="calBtn" class="ghostBtn" style="border-radius:12px">校准水平</button>
-      <small>（将手机保持你觉得的“水平”姿态后点校准）</small>
-    </div>
+      <div class="blockCard">
+        <div class="rowTitle">灵敏度</div>
+        <div class="sensWrap">
+          <input id="sens" type="range" min="0.2" max="3" step="0.1" value="1.3" />
+        </div>
+      </div>
 
-    <p style="margin-top:.6rem">
-      <small>调试：桌面可用 ← → ↑ ↓ 控制；<kbd>P</kbd> 暂停；<kbd>R</kbd> 复位。</small>
+      <div class="blockCard">
+        <div class="btnRow">
+          <button id="startBtn" class="mainBtn">开始游戏</button>
+          <button id="calBtn" class="mainBtn">校准水平</button>
+        </div>
+        <div class="calibNote">（将手机保持你觉得的“水平”姿态后点校准）</div>
+      </div>
+    </section>
+
+    <p style="margin-top:.2rem">
+      <small>调试：桌面可用 <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> 控制；<kbd>P</kbd> 暂停；<kbd>R</kbd> 复位。</small>
     </p>
+
+    <div id="howtoBox">
+      <div id="howtoBoxTitle">
+        <span>玩法说明 / 道具与危险</span>
+        <span>左边拿，右边躲 😎</span>
+      </div>
+      <div class="howtoColumns">
+        <div>
+          <div class="colBlockTitle good"><div class="dot"></div><div>增益道具</div></div>
+          <div class="infoList">
+            <div class="infoCard">
+              <div class="infoHead"><div class="tagIcon tagCoin"></div><div>金币</div></div>
+              <div class="infoBody">吃到后 +10 分。</div>
+            </div>
+            <div class="infoCard">
+              <div class="infoHead"><div class="tagIcon tagDiamond"></div><div>钻石</div></div>
+              <div class="infoBody">稀有高分道具，吃到后 +50 分。出现频率很低，记得去抢！</div>
+            </div>
+            <div class="infoCard">
+              <div class="infoHead"><div class="tagIcon tagHeart"></div><div>爱心</div></div>
+              <div class="infoBody">回复 1 滴血；如果血量已满，改为 +5 分。吃到会出现粉色柔光效果。</div>
+            </div>
+            <div class="infoCard">
+              <div class="infoHead"><div class="tagIcon tagShield"></div><div>护盾</div></div>
+              <div class="infoBody">获得一层蓝色护盾球。护盾持续约 10 秒；期间第一次撞到障碍会被抵消。</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="colBlockTitle bad"><div class="dot"></div><div>危险障碍</div></div>
+          <div class="infoList">
+            <div class="infoCard">
+              <div class="infoHead"><div class="tagIcon tagRock"></div><div>剑鱼</div></div>
+              <div class="infoBody">一般障碍，会造成 1伤害，能被护盾抵挡。它自己会晃动漂移。现在会冲到你面前停住一下。</div>
+            </div>
+            <div class="infoCard">
+              <div class="infoHead"><div class="tagIcon tagMine"></div><div>鲨鱼</div></div>
+              <div class="infoBody">危险障碍，Easy/Normal 1伤害，Hard 2伤害。它们会在屏幕里微微游，然后贴脸停一下吓你。</div>
+            </div>
+            <div class="infoCard">
+              <div class="infoHead"><div class="tagIcon tagInk"></div><div>章鱼墨云</div></div>
+              <div class="infoBody">碰到就整屏变浑浊变暗，一直碰就一直黑。离开后还会黑一小段时间才慢慢恢复。墨团会往上漂，顶到上边缘会停留一会再消失，且在消失前可以多次污染你。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="leaderboardBox"></div>
   </div>
 
   <div id="pauseOverlay">
@@ -56,11 +132,12 @@
 
   <div id="tips">提示：若无反应，请在系统设置里开启“运动与体能访问权限”。</div>
   <div id="toast"></div>
+
   <div class="floating">
     <button id="pauseBtn" class="ghostBtn">暂停</button>
     <button id="restartBtn" class="ghostBtn">重开</button>
   </div>
 
-  <script src="src/game.js"></script>
+  <script src="js/game.js"></script>
 </body>
 </html>

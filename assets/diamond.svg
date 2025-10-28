@@ -1,0 +1,25 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" stroke="#0A2A3A" stroke-width="3" stroke-linejoin="round">
+  <!-- 下半部分主多面体 -->
+  <polygon points="16,44 64,120 112,44" fill="#39E9FF"></polygon>
+  
+  <!-- 左下小面 -->
+  <polygon points="16,44 32,44 64,72 64,120" fill="#21C9E8"></polygon>
+  
+  <!-- 右下小面 -->
+  <polygon points="112,44 96,44 64,72 64,120" fill="#21C9E8"></polygon>
+  
+  <!-- 中央下反光面 -->
+  <polygon points="32,44 96,44 64,72" fill="#7DF5FF"></polygon>
+  
+  <!-- 顶部横向冠部 -->
+  <polygon points="40,16 88,16 96,44 32,44" fill="#AFFFFF"></polygon>
+  
+  <!-- 左上斜面 -->
+  <polygon points="40,16 32,44 16,44" fill="#7DF5FF"></polygon>
+  
+  <!-- 右上斜面 -->
+  <polygon points="88,16 96,44 112,44" fill="#7DF5FF"></polygon>
+  
+  <!-- 外轮廓描边路径（保证整体边缘更利） -->
+  <polygon points="16,44 40,16 88,16 112,44 64,120" fill="none"></polygon>
+</svg>
