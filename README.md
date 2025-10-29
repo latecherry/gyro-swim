@@ -30,14 +30,17 @@ Developed a mobile application based on built-in sensors, which allows users to 
        width="100%">
 </p>
 
-<h2>🔄 State Transition Diagram</h2>
+<!-- Project UML Diagram -->
+<div align="center">
+  <h2>S🔄 ystem Architecture / UML</h2>
+  <img src="https://raw.githubusercontent.com/latecherry/gyro-swim/main/Projects/UML.svg"
+       alt="UML Diagram"
+       style="max-width: 800px; width: 100%; height: auto; border: 1px solid #ccc; border-radius: 8px;">
+  <p style="font-size: 0.9rem; color: #666;">
+    High-level system model of the game architecture.
+  </p>
+</div>
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/latecherry/gyro-swim/main/Projects/State%20Transition%20Diagram.png"
-       alt="State Transition Diagram"
-       title="State Transition Diagram"
-       width="100%">
-</p>
 
 <h2>🖼️ UI Prototype</h2>
 
